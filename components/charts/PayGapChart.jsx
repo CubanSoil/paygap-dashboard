@@ -19,11 +19,17 @@ export default function PayGapChart({ data }) {
         label: 'Mean hourly % diff (M-F)',
         data: meanDiffs,
         stack: 'a',
+        backgroundColor: [
+        'rgba(255, 99, 132, 0.6)', // Red
+      ],
       },
       {
         label: 'Median hourly % diff (M-F)',
         data: medianDiffs,
         stack: 'a',
+        backgroundColor: [
+        'rgba(54, 162, 235, 0.6)', // Blue
+      ],
       },
     ],
   };

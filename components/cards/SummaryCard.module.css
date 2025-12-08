@@ -8,6 +8,13 @@
   flex-direction: column;
   gap: 8px;
   box-sizing: border-box;
+  opacity: 0;
+  animation: fade-in 0.5s ease-in-out var(--d) forwards;
+}
+@keyframes fade-in {
+    100% {
+        opacity: 1;
+    }
 }
 
 .summary-card-title {

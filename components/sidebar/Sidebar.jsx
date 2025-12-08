@@ -4,7 +4,7 @@ import styles from './Sidebar.module.css';
 export default function Sidebar() {
   return (
     <aside className={styles.sidebar}>
-      <div className={styles['sidebar-title']}>Reporjs</div>
+      <div className={styles['sidebar-title']}>Repor</div>
       <ul>
         <li className={styles['sidebar-item']}>Pay Gap</li>
       </ul>

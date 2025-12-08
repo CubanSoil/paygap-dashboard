@@ -9,12 +9,13 @@ export default function Filters({ onApply }) {
   const [size, setSize] = useState("");
   const [year, setYear] = useState("2025");
 
-  function apply() {
+  const apply = (e) => {
+    e.preventDefault()
     onApply({ employer, postcode, size, year });
   }
 
   return (
-    <div className={styles["filters-container"]}>
+    <form onSubmit={apply} className={styles["filters-container"]}>
       <input
         value={employer}
         onChange={(e) => setEmployer(e.target.value)}
@@ -56,9 +57,9 @@ export default function Filters({ onApply }) {
         <option>2020</option>
       </select>
 
-      <button onClick={apply} className={styles["apply-button"]}>
+      <button type="submit" className={styles["apply-button"]}>
         Apply
       </button>
-    </div>
+    </form>
   );
 }

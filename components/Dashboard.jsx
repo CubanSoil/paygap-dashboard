@@ -24,10 +24,10 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+    <div className="flex flex-col md:flex-row gap-3 md:gap-4">
       {/* Sidebar collapses on mobile */}
       <div className="md:w-64">
-        <div className="hidden md:block">
+        <div className="hidden md:block h-full">
           <Sidebar />
         </div>
       </div>
@@ -41,6 +41,7 @@ export default function Dashboard() {
             py-2 
             mb-4 
             shadow-sm
+            bg-black
           "
         >
           <Filters onApply={(q) => fetchReports(q)} />
@@ -58,12 +59,13 @@ export default function Dashboard() {
 
           {/* Bonus Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <Card title="Average Male Bonus" value={aggregated?.avgMaleBonus} />
+            <Card title="Average Male Bonus" value={aggregated?.avgMaleBonus} delay='0.5s' />
             <Card
               title="Average Female Bonus"
               value={aggregated?.avgFemaleBonus}
+              delay='0.75s'
             />
-            <Card title="Average Bonus Gap" value={aggregated?.avgBonusGap} />
+            <Card title="Average Bonus Gap" value={aggregated?.avgBonusGap} delay='1s' />
           </div>
 
           {/* Chart */}
@@ -75,21 +77,21 @@ export default function Dashboard() {
           <div className="p-4 bg-white rounded shadow text">
             <h3 className="font-semibold mb-2">Raw sample rows</h3>
 
-            <div className="overflow-x-auto max-h-64">
-              <table className="min-w-full text-sm">
+            <div className="relative flex flex-col w-full text-gray-700 bg-white rounded-xl overflow-x-scroll">
+              <table className="w-full text-left table-auto min-w-max">
                 <thead>
                   <tr>
-                    <th className="text-left pr-4">Employer</th>
-                    <th className="text-left pr-4">Mean %</th>
-                    <th className="text-left pr-4">Median %</th>
+                    <th className="p-4 border-b border-gray-300">Employer</th>
+                    <th className="p-4 border-b border-gray-300">Mean %</th>
+                    <th className="p-4 border-b border-gray-300">Median %</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="py-2">{r.EmployerName}</td>
-                      <td className="py-2">{r.DiffMeanHourlyPercent}</td>
-                      <td className="py-2">{r.DiffMedianHourlyPercent}</td>
+                    <tr key={i}>
+                      <td className={`p-4 border-b border-gray-300 ${i%2 === 0 ? 'bg-gray-100' : ''}`}>{r.EmployerName}</td>
+                      <td className={`p-4 border-b border-gray-300 ${i%2 === 0 ? 'bg-gray-100' : ''}`}>{r.DiffMeanHourlyPercent}</td>
+                      <td className={`p-4 border-b border-gray-300 ${i%2 === 0 ? 'bg-gray-100' : ''}`}>{r.DiffMedianHourlyPercent}</td>
                     </tr>
                   ))}
                 </tbody>
