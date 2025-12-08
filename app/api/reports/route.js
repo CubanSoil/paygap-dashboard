@@ -15,6 +15,7 @@ export async function GET(request) {
 
     // return cached parsed objects if available
     if (globalThis.__GPG_CSV_CACHE[date]) {
+      console.log("Cache Hit");
       return filterAndRespond(globalThis.__GPG_CSV_CACHE[date], { employer, postcode, size });
     }
 
@@ -61,54 +62,60 @@ export async function GET(request) {
 }
 
 function filterAndRespond(rows, filters) {
-  const { employer, postcode, size } = filters;
-  if (employer)
-      rows = rows.filter((r) =>
-        (r.EmployerName || "").toLowerCase().includes(employer.toLowerCase())
-      );
-    if (postcode)
-      rows = rows.filter((r) =>
-        (r.PostCode || "").toLowerCase().includes(postcode.toLowerCase())
-      );
-    if (size)
-      rows = rows.filter((r) =>
-        (r.EmployerSize || "").toLowerCase().includes(size.toLowerCase())
-      );
+  const employer = filters.employer?.toLowerCase() || null;
+  const postcode = filters.postcode?.toLowerCase() || null;
+  const size = filters.size?.toLowerCase() || null;
 
-    const aggregated = {
-      count: rows.length,
-      avgDiffMeanHourly:
-        rows.reduce(
-          (acc, cur) => acc + (Number(cur.DiffMeanHourlyPercent) || 0),
-          0
-        ) / (rows.length || 1),
-      avgDiffMedianHourly:
-        rows.reduce(
-          (acc, cur) => acc + (Number(cur.DiffMedianHourlyPercent) || 0),
-          0
-        ) / (rows.length || 1),
+  // --- 1. Filter in a single pass ---
+  const filtered = rows.filter((r) => {
+    const employerName = r.EmployerName?.toLowerCase() || "";
+    const post = r.PostCode?.toLowerCase() || "";
+    const empSize = r.EmployerSize?.toLowerCase() || "";
 
-      avgMaleBonus:
-        rows.reduce(
-          (acc, cur) => acc + (Number(cur.MaleBonusPercent) || 0),
-          0
-        ) / (rows.length || 1),
+    if (employer && !employerName.includes(employer)) return false;
+    if (postcode && !post.includes(postcode)) return false;
+    if (size && !empSize.includes(size)) return false;
 
-      avgFemaleBonus:
-        rows.reduce(
-          (acc, cur) => acc + (Number(cur.FemaleBonusPercent) || 0),
-          0
-        ) / (rows.length || 1),
+    return true;
+  });
 
-      avgBonusGap:
-        rows.reduce(
-          (acc, cur) =>
-            acc +
-            ((Number(cur.MaleBonusPercent) || 0) -
-              (Number(cur.FemaleBonusPercent) || 0)),
-          0
-        ) / (rows.length || 1),
-    };
+  // --- 2. Aggregate in a single pass ---
+  const stats = {
+    count: filtered.length,
+    sumMean: 0,
+    sumMedian: 0,
+    sumMaleBonus: 0,
+    sumFemaleBonus: 0,
+    sumBonusGap: 0,
+  };
 
-    return NextResponse.json({ rows, aggregated });
+  for (const r of filtered) {
+    const mean = Number(r.DiffMeanHourlyPercent) || 0;
+    const median = Number(r.DiffMedianHourlyPercent) || 0;
+    const maleBonus = Number(r.MaleBonusPercent) || 0;
+    const femaleBonus = Number(r.FemaleBonusPercent) || 0;
+
+    stats.sumMean += mean;
+    stats.sumMedian += median;
+    stats.sumMaleBonus += maleBonus;
+    stats.sumFemaleBonus += femaleBonus;
+    stats.sumBonusGap += maleBonus - femaleBonus;
+  }
+
+  const divisor = stats.count || 1;
+
+  const aggregated = {
+    count: stats.count,
+    avgDiffMeanHourly: stats.sumMean / divisor,
+    avgDiffMedianHourly: stats.sumMedian / divisor,
+    avgMaleBonus: stats.sumMaleBonus / divisor,
+    avgFemaleBonus: stats.sumFemaleBonus / divisor,
+    avgBonusGap: stats.sumBonusGap / divisor,
+  };
+
+  return NextResponse.json({
+    rows: filtered,
+    aggregated,
+  });
 }
+
