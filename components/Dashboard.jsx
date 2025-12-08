@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Sidebar from "./sidebar/Sidebar";
 import Filters from "./filters/Filters";
 import PayGapChart from "./charts/PayGapChart";
@@ -10,13 +10,14 @@ export default function Dashboard() {
   const [rows, setRows] = useState([]);
   const [aggregated, setAggregated] = useState(null);
 
-  async function fetchReports(q = {}) {
+
+  const fetchReports = useCallback(async (q = {}) => {
     const params = new URLSearchParams(q);
     const res = await fetch(`/api/reports?${params.toString()}`);
     const json = await res.json();
-    setRows(json.rows || []);
+     setRows(json.rows || []);
     setAggregated(json.aggregated || null);
-  }
+  }, []);
 
   useEffect(() => {
     fetchReports();
