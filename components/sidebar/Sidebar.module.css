@@ -1,0 +1,18 @@
+.sidebar {
+  width: 256px;
+  padding: 16px;
+  border-right: 1px solid #ddd;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sidebar-item {
+  padding: 4px 0; 
+}

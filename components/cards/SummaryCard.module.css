@@ -1,0 +1,24 @@
+.summary-card {
+  padding: 16px;
+  border-radius: 6px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #4b5563;
+  color: #ffffff; 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.summary-card-title {
+  font-size: 14px;
+}
+
+.summary-card-value {
+  font-size: 24px; 
+  font-weight: 700;
+}
+
+.summary-card-subtitle {
+  font-size: 14px;
+}

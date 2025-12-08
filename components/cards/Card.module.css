@@ -1,0 +1,21 @@
+.card {
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600; 
+  margin-bottom: 8px; 
+}
+
+.card-value {
+  font-size: 24px; /* fixed size */
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;   /* keep value on one line */
+  overflow: hidden;
+  text-overflow: ellipsis; /* truncate if too long */
+}
