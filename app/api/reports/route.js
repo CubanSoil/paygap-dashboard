@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
 import Papa from "papaparse";
 
