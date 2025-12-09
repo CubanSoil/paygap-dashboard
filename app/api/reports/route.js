@@ -11,7 +11,7 @@ export async function GET(request) {
     const employer = searchParams.get("employer");
     const postcode = searchParams.get("postcode");
     const size = searchParams.get("size");
-    const date = searchParams.get("year") || "2025"; // default year
+    const date = searchParams.get("year") || "2025";
 
     // return cached parsed objects if available
     if (globalThis.__GPG_CSV_CACHE[date]) {
@@ -19,10 +19,8 @@ export async function GET(request) {
       return filterAndRespond(globalThis.__GPG_CSV_CACHE[date], { employer, postcode, size });
     }
 
-    // Build CSV URL based on year
     const csvUrl = `https://gender-pay-gap.service.gov.uk/viewing/download-data/${date}`;
 
-    // Fetch the CSV
     const response = await fetch(csvUrl);
     if (!response.ok) {
       return new Response(JSON.stringify({ error: "Failed to fetch CSV" }), {
@@ -31,25 +29,10 @@ export async function GET(request) {
     }
 
     const csvText = await response.text();
-
-    // Parse CSV
     const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
     let rows = parsed.data || [];
 
     globalThis.__GPG_CSV_CACHE[date] = rows;
-
-    if (employer)
-      rows = rows.filter((r) =>
-        (r.EmployerName || "").toLowerCase().includes(employer.toLowerCase())
-      );
-    if (postcode)
-      rows = rows.filter((r) =>
-        (r.PostCode || "").toLowerCase().includes(postcode.toLowerCase())
-      );
-    if (size)
-      rows = rows.filter((r) =>
-        (r.EmployerSize || "").toLowerCase().includes(size.toLowerCase())
-      );
 
     return filterAndRespond(rows,{ employer, postcode, size })
   } catch (err) {
