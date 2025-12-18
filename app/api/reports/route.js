@@ -45,60 +45,56 @@ export async function GET(request) {
 }
 
 function filterAndRespond(rows, filters) {
-  const employer = filters.employer?.toLowerCase() || null;
-  const postcode = filters.postcode?.toLowerCase() || null;
-  const size = filters.size?.toLowerCase() || null;
+  const employer = filters.employer?.toLowerCase();
+  const postcode = filters.postcode?.toLowerCase();
+  const size = filters.size?.toLowerCase();
 
-  // --- 1. Filter in a single pass ---
-  const filtered = rows.filter((r) => {
+  const filtered = [];
+
+  let count = 0;
+  let sumMean = 0;
+  let sumMedian = 0;
+  let sumMaleBonus = 0;
+  let sumFemaleBonus = 0;
+  let sumBonusGap = 0;
+
+  for (const r of rows) {
     const employerName = r.EmployerName?.toLowerCase() || "";
     const post = r.PostCode?.toLowerCase() || "";
     const empSize = r.EmployerSize?.toLowerCase() || "";
 
-    if (employer && !employerName.includes(employer)) return false;
-    if (postcode && !post.includes(postcode)) return false;
-    if (size && !empSize.includes(size)) return false;
+    if (employer && !employerName.includes(employer)) continue;
+    if (postcode && !post.includes(postcode)) continue;
+    if (size && !empSize.includes(size)) continue;
 
-    return true;
-  });
+    filtered.push(r);
+    count++;
 
-  // --- 2. Aggregate in a single pass ---
-  const stats = {
-    count: filtered.length,
-    sumMean: 0,
-    sumMedian: 0,
-    sumMaleBonus: 0,
-    sumFemaleBonus: 0,
-    sumBonusGap: 0,
-  };
-
-  for (const r of filtered) {
     const mean = Number(r.DiffMeanHourlyPercent) || 0;
     const median = Number(r.DiffMedianHourlyPercent) || 0;
     const maleBonus = Number(r.MaleBonusPercent) || 0;
     const femaleBonus = Number(r.FemaleBonusPercent) || 0;
 
-    stats.sumMean += mean;
-    stats.sumMedian += median;
-    stats.sumMaleBonus += maleBonus;
-    stats.sumFemaleBonus += femaleBonus;
-    stats.sumBonusGap += maleBonus - femaleBonus;
+    sumMean += mean;
+    sumMedian += median;
+    sumMaleBonus += maleBonus;
+    sumFemaleBonus += femaleBonus;
+    sumBonusGap += maleBonus - femaleBonus;
   }
 
-  const divisor = stats.count || 1;
-
-  const aggregated = {
-    count: stats.count,
-    avgDiffMeanHourly: stats.sumMean / divisor,
-    avgDiffMedianHourly: stats.sumMedian / divisor,
-    avgMaleBonus: stats.sumMaleBonus / divisor,
-    avgFemaleBonus: stats.sumFemaleBonus / divisor,
-    avgBonusGap: stats.sumBonusGap / divisor,
-  };
+  const divisor = count || 1;
 
   return NextResponse.json({
     rows: filtered,
-    aggregated,
+    aggregated: {
+      count,
+      avgDiffMeanHourly: sumMean / divisor,
+      avgDiffMedianHourly: sumMedian / divisor,
+      avgMaleBonus: sumMaleBonus / divisor,
+      avgFemaleBonus: sumFemaleBonus / divisor,
+      avgBonusGap: sumBonusGap / divisor,
+    },
   });
 }
+
 
